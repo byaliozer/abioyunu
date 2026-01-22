@@ -3,6 +3,11 @@
 # dependencies
 node_modules/
 
+# Force npm - ignore yarn files
+yarn.lock
+.yarnrc
+.yarnrc.yml
+
 # Expo
 .expo/
 dist/
