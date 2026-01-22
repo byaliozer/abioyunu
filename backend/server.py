@@ -304,7 +304,7 @@ def transform_question(q: Dict) -> Question:
 
 @api_router.get("/")
 async def root():
-    return {"message": "ABİ Quiz API", "version": "2.0"}
+    return {"message": "ABİ OYUNU API", "version": "2.0"}
 
 @api_router.get("/episodes", response_model=List[Episode])
 async def get_episodes():
