@@ -27,7 +27,10 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
-# Google Sheets Configuration - ABİ Quiz App
+# Database collection names - ABİ OYUNU (different from previous apps)
+COLLECTION_PREFIX = "abi_"  # This ensures data is separate from other apps
+
+# Google Sheets Configuration - ABİ Oyunu
 SHEET_ID = "2PACX-1vSSanuJUshUCSahKNzOnAb37ZWaFJ29uidRDpBRp2E5ZnxoSxqtuCNY7n9127YR4wVdO_s0v7cnyfDv"
 EPISODES_GID = "0"
 QUESTIONS_GID = "419312011"
