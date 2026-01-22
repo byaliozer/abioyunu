@@ -31,7 +31,7 @@ export default function MainMenu() {
 
         {/* Title */}
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>ABİ Quiz</Text>
+          <Text style={styles.title}>ABİ OYUNU</Text>
         </View>
 
         {/* Game Mode Buttons - Primary Actions */}
