@@ -30,7 +30,7 @@ api_router = APIRouter(prefix="/api")
 # Google Sheets Configuration - ABİ Quiz App
 SHEET_ID = "2PACX-1vSSanuJUshUCSahKNzOnAb37ZWaFJ29uidRDpBRp2E5ZnxoSxqtuCNY7n9127YR4wVdO_s0v7cnyfDv"
 EPISODES_GID = "0"
-QUESTIONS_GID = "1459380949"
+QUESTIONS_GID = "419312011"
 
 # Cache with 5 minute TTL
 cache = TTLCache(maxsize=100, ttl=300)
