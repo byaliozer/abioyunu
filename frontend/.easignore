@@ -1,9 +1,4 @@
-# EAS Build - Ignore yarn files to force npm usage
-yarn.lock
-.yarnrc
-.yarnrc.yml
-
-# Other files to ignore
+# EAS Build ignore file
 .expo/
 node_modules/
 .git/
