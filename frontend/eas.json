@@ -12,7 +12,6 @@
       "extends": "base",
       "developmentClient": true,
       "distribution": "internal",
-      "installCommand": "yarn install",
       "env": {
         "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host"
       },
@@ -25,7 +24,6 @@
     "preview": {
       "extends": "base",
       "distribution": "internal",
-      "installCommand": "yarn install",
       "env": {
         "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host"
       },
@@ -37,7 +35,6 @@
     "production": {
       "extends": "base",
       "distribution": "store",
-      "installCommand": "yarn install",
       "env": {
         "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host"
       },
