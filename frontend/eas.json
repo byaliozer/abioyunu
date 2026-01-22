@@ -4,11 +4,7 @@
     "appVersionSource": "local"
   },
   "build": {
-    "base": {
-      "node": "20.18.0"
-    },
     "development": {
-      "extends": "base",
       "developmentClient": true,
       "distribution": "internal",
       "env": {
@@ -16,12 +12,10 @@
       },
       "android": {
         "buildType": "apk",
-        "withoutCredentials": true,
-        "gradleCommand": ":app:assembleDebug"
+        "withoutCredentials": true
       }
     },
     "preview": {
-      "extends": "base",
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host"
@@ -32,19 +26,13 @@
       }
     },
     "production": {
-      "extends": "base",
       "distribution": "store",
       "env": {
-        "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host",
-        "CI": "0"
+        "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host"
       },
       "android": {
         "buildType": "app-bundle",
-        "credentialsSource": "remote",
-        "gradleCommand": ":app:bundleRelease"
-      },
-      "cache": {
-        "disabled": true
+        "credentialsSource": "remote"
       }
     }
   },
