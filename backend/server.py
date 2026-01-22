@@ -373,7 +373,7 @@ async def get_mixed_quiz():
 @api_router.post("/score/episode")
 async def submit_episode_score(data: EpisodeScoreSubmit):
     """Submit score for episode mode - keeps best score only"""
-    collection = db.episode_scores
+    collection = db.abi_episode_scores
     
     # Check if player has existing score for this episode
     existing = await collection.find_one({
@@ -540,7 +540,7 @@ async def get_episode_leaderboard(episode_id: int, player_name: Optional[str] = 
     if episode_id < 1:
         raise HTTPException(status_code=400, detail="Geçersiz bölüm ID")
     
-    collection = db.episode_scores
+    collection = db.abi_episode_scores
     
     # Get top 50 for this episode
     cursor = collection.find({"episode_id": episode_id}).sort("score", -1).limit(50)
