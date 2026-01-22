@@ -4,21 +4,14 @@ set -e
 echo "========================================"
 echo "EAS Build Pre-Install Hook"
 echo "========================================"
+echo "Current directory: $(pwd)"
+echo "Node version: $(node -v)"
+echo "Yarn version: $(yarn -v)"
 
-# Remove yarn.lock to force npm usage
-if [ -f "yarn.lock" ]; then
-    echo "Removing yarn.lock to force npm..."
-    rm -f yarn.lock
-fi
+# Remove old yarn.lock and regenerate
+echo "Regenerating yarn.lock..."
+rm -f yarn.lock
+yarn install --no-frozen-lockfile
 
-# Remove any yarn config files
-rm -f .yarnrc .yarnrc.yml 2>/dev/null || true
-
-# Ensure package-lock.json exists
-if [ ! -f "package-lock.json" ]; then
-    echo "Creating package-lock.json with npm..."
-    npm install --package-lock-only
-fi
-
-echo "Pre-install hook completed successfully!"
+echo "yarn.lock regenerated successfully!"
 echo "========================================"
