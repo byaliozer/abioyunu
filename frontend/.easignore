@@ -1,4 +1,8 @@
-# EAS Build ignore file
+# Ignore yarn.lock - let EAS create fresh one
+yarn.lock
+
+# Other files to ignore
 .expo/
 node_modules/
 .git/
+*.log
