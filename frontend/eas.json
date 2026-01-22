@@ -35,7 +35,8 @@
       "extends": "base",
       "distribution": "store",
       "env": {
-        "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host"
+        "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host",
+        "CI": ""
       },
       "android": {
         "buildType": "app-bundle",
