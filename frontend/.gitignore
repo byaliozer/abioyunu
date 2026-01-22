@@ -3,11 +3,6 @@
 # dependencies
 node_modules/
 
-# Yarn - MUST use npm for EAS Build
-yarn.lock
-.yarnrc
-.yarnrc.yml
-
 # Expo
 .expo/
 dist/
