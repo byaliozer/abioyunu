@@ -87,8 +87,8 @@
             "buildToolsVersion": "34.0.0",
             "kotlinVersion": "1.9.24",
             "newArchEnabled": false,
-            "extraProguardRules": "-keep class com.busegame.abi.BuildConfig { *; }",
-            "enableProguardInReleaseBuilds": false
+            "enableProguardInReleaseBuilds": false,
+            "extraMavenRepos": []
           },
           "ios": {
             "deploymentTarget": "15.1"
