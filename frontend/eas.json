@@ -12,7 +12,8 @@
       "developmentClient": true,
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host"
+        "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host",
+        "YARN_ENABLE_IMMUTABLE_INSTALLS": "false"
       },
       "android": {
         "buildType": "apk",
@@ -24,7 +25,8 @@
       "extends": "base",
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host"
+        "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host",
+        "YARN_ENABLE_IMMUTABLE_INSTALLS": "false"
       },
       "android": {
         "buildType": "apk",
@@ -35,7 +37,8 @@
       "extends": "base",
       "distribution": "store",
       "env": {
-        "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host"
+        "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host",
+        "YARN_ENABLE_IMMUTABLE_INSTALLS": "false"
       },
       "android": {
         "buildType": "app-bundle",
