@@ -34,8 +34,7 @@
       "android": {
         "buildType": "app-bundle",
         "credentialsSource": "remote",
-        "gradleCommand": ":app:bundleRelease",
-        "extraGradleArgs": ["-PandroidDefaults.buildFeatures.buildConfig=true"]
+        "gradleCommand": ":app:bundleRelease"
       },
       "cache": {
         "disabled": true
