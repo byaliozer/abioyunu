@@ -10,9 +10,9 @@ import { Platform } from 'react-native';
 
 // AdMob Configuration
 export const ADMOB_IDS = {
-  APP_ID: 'ca-app-pub-9873123247401502~2062931178',
-  BANNER_ID: 'ca-app-pub-9873123247401502/9749849505',
-  INTERSTITIAL_ID: 'ca-app-pub-9873123247401502/6521050938',
+  APP_ID: 'ca-app-pub-9873123247401502~8867540882',
+  BANNER_ID: 'ca-app-pub-9873123247401502/7990230026',
+  INTERSTITIAL_ID: 'ca-app-pub-9873123247401502/4006096444',
 };
 
 // Test IDs for development
