@@ -29,12 +29,12 @@ function RootLayoutNav() {
     checkUsername();
   }, []);
 
-  // Re-check when pathname changes (after username is set)
+  // Re-check only when navigating back to home from username screen
   useEffect(() => {
-    if (!isLoading && pathname === '/') {
+    if (!isLoading && pathname === '/' && needsUsername) {
       checkUsername();
     }
-  }, [pathname, isLoading]);
+  }, [pathname]);
 
   // Redirect logic
   useEffect(() => {
