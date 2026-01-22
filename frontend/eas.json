@@ -12,7 +12,8 @@
       },
       "android": {
         "buildType": "apk",
-        "withoutCredentials": true
+        "withoutCredentials": true,
+        "gradleCommand": ":app:assembleDebug"
       }
     },
     "preview": {
@@ -32,7 +33,9 @@
       },
       "android": {
         "buildType": "app-bundle",
-        "credentialsSource": "remote"
+        "credentialsSource": "remote",
+        "gradleCommand": ":app:bundleRelease",
+        "extraGradleArgs": ["-PandroidDefaults.buildFeatures.buildConfig=true"]
       },
       "cache": {
         "disabled": true
