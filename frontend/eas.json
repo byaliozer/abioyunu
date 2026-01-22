@@ -28,12 +28,14 @@
     "production": {
       "distribution": "store",
       "env": {
-        "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host",
-        "CI": "false"
+        "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host"
       },
       "android": {
         "buildType": "app-bundle",
         "credentialsSource": "remote"
+      },
+      "cache": {
+        "disabled": true
       }
     }
   },
