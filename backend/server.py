@@ -681,13 +681,13 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup_db_client():
     logger.info("Starting up - connecting to MongoDB")
-    # Create indexes
-    await db.episode_scores.create_index([("player_name", 1), ("episode_id", 1)], unique=True)
-    await db.episode_scores.create_index([("episode_id", 1), ("score", -1)])
-    await db.mixed_scores.create_index("player_name", unique=True)
-    await db.mixed_scores.create_index([("score", -1)])
-    await db.global_scores.create_index("player_name", unique=True)
-    await db.global_scores.create_index([("score", -1)])
+    # Create indexes - ABİ OYUNU collections (separate from other apps)
+    await db.abi_episode_scores.create_index([("player_name", 1), ("episode_id", 1)], unique=True)
+    await db.abi_episode_scores.create_index([("episode_id", 1), ("score", -1)])
+    await db.abi_mixed_scores.create_index("player_name", unique=True)
+    await db.abi_mixed_scores.create_index([("score", -1)])
+    await db.abi_global_scores.create_index("player_name", unique=True)
+    await db.abi_global_scores.create_index([("score", -1)])
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
