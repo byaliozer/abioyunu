@@ -427,7 +427,7 @@ async def submit_episode_score(data: EpisodeScoreSubmit):
 @api_router.post("/score/mixed")
 async def submit_mixed_score(data: MixedScoreSubmit):
     """Submit score for mixed mode - keeps best run only"""
-    collection = db.mixed_scores
+    collection = db.abi_mixed_scores
     
     # Check if player has existing score
     existing = await collection.find_one({"player_name": data.player_name})
@@ -584,7 +584,7 @@ async def get_episode_leaderboard(episode_id: int, player_name: Optional[str] = 
 @api_router.get("/leaderboard/mixed", response_model=LeaderboardResponse)
 async def get_mixed_leaderboard(player_name: Optional[str] = None):
     """Get mixed mode leaderboard"""
-    collection = db.mixed_scores
+    collection = db.abi_mixed_scores
     
     # Get top 50
     cursor = collection.find().sort("score", -1).limit(50)
