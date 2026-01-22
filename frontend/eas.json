@@ -28,13 +28,13 @@
     "production": {
       "distribution": "store",
       "env": {
-        "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host"
+        "EXPO_PUBLIC_BACKEND_URL": "https://deniztest.emergent.host",
+        "CI": "false"
       },
       "android": {
         "buildType": "app-bundle",
         "credentialsSource": "remote"
-      },
-      "node": "18.18.0"
+      }
     }
   },
   "submit": {
