@@ -1,10 +1,32 @@
-// Re-export platform-specific implementation
-import { Platform } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 
-if (Platform.OS === 'web') {
-  module.exports = require('./BannerAd.web');
-} else {
-  module.exports = require('./BannerAd.native');
+interface BannerAdProps {
+  style?: object;
 }
 
-export * from './BannerAd.web';
+// Web/development version - placeholder
+export function BannerAd({ style }: BannerAdProps) {
+  // On web, show placeholder
+  return (
+    <View style={[styles.placeholder, style]}>
+      <Text style={styles.placeholderText}>Reklam Alanı</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  placeholder: {
+    height: 50,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.1)',
+    width: '100%',
+  },
+  placeholderText: {
+    color: '#888',
+    fontSize: 12,
+  },
+});
