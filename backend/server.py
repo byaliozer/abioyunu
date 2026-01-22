@@ -473,7 +473,7 @@ async def submit_mixed_score(data: MixedScoreSubmit):
 async def update_global_score(player_name: str):
     """Calculate and update global score (sum of all episode best scores)"""
     episode_collection = db.episode_scores
-    global_collection = db.global_scores
+    global_collection = db.abi_global_scores
     
     # Get all episode scores for this player
     cursor = episode_collection.find({"player_name": player_name})
