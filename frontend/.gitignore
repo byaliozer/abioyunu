@@ -3,11 +3,6 @@
 # dependencies
 node_modules/
 
-# Yarn - using npm instead
-yarn.lock
-.yarnrc
-.yarnrc.yml
-
 # Expo
 .expo/
 dist/
