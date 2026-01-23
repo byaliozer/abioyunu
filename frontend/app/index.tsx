@@ -67,7 +67,7 @@ export default function MainMenu() {
             </View>
             <View style={styles.gameModeTextContainer}>
               <Text style={styles.gameModeTitle}>Bölüm Modu</Text>
-              <Text style={styles.gameModeHint}>Bölüm seç • Her biri 25 soru</Text>
+              <Text style={styles.gameModeHint}>{getEpisodeHintText()}</Text>
             </View>
             <Ionicons name="chevron-forward" size={24} color="rgba(255,255,255,0.6)" />
           </TouchableOpacity>
