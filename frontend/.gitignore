@@ -3,6 +3,9 @@
 # dependencies
 node_modules/
 
+# Yarn lock - EAS will generate fresh
+yarn.lock
+
 # Expo
 .expo/
 dist/
