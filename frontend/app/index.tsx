@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -11,11 +11,32 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { BannerAd } from '../src/components/BannerAd';
+import { getEpisodeStats, EpisodeStats } from '../src/services/api';
 
 const { width } = Dimensions.get('window');
 
 export default function MainMenu() {
   const router = useRouter();
+  const [stats, setStats] = useState<EpisodeStats | null>(null);
+
+  useEffect(() => {
+    loadStats();
+  }, []);
+
+  const loadStats = async () => {
+    const data = await getEpisodeStats();
+    if (data) {
+      setStats(data);
+    }
+  };
+
+  // Dynamic episode text based on stats
+  const getEpisodeHintText = () => {
+    if (stats && stats.unlocked_episodes > 0) {
+      return `${stats.unlocked_episodes} Bölüm • Her biri ${stats.questions_per_episode} soru`;
+    }
+    return 'Bölüm seç • Her biri 25 soru';
+  };
 
   return (
     <SafeAreaView style={styles.container}>
