@@ -48,14 +48,7 @@
     },
     "plugins": [
       "expo-router",
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "enableBuildConfigGeneration": true
-          }
-        }
-      ],
+      "./plugins/withBuildConfig.js",
       [
         "expo-splash-screen",
         {
