@@ -12,11 +12,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { BannerAd } from '../src/components/BannerAd';
 import { getEpisodeStats, EpisodeStats } from '../src/services/api';
+import { useAds } from '../src/context/AdContext';
 
 const { width } = Dimensions.get('window');
 
 export default function MainMenu() {
   const router = useRouter();
+  const { showInterstitial } = useAds();
   const [stats, setStats] = useState<EpisodeStats | null>(null);
 
   useEffect(() => {
@@ -36,6 +38,12 @@ export default function MainMenu() {
       return `${stats.unlocked_episodes} Bölüm • Her biri ${stats.questions_per_episode} soru`;
     }
     return 'Bölüm seç • Her biri 25 soru';
+  };
+
+  // Handle settings press - show interstitial ad first
+  const handleSettingsPress = async () => {
+    await showInterstitial();
+    router.push('/settings');
   };
 
   return (
