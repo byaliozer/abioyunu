@@ -65,6 +65,13 @@ export interface PlayerStats {
   mixed_best_score: number;
 }
 
+export interface EpisodeStats {
+  total_episodes: number;
+  unlocked_episodes: number;
+  locked_episodes: number;
+  questions_per_episode: number;
+}
+
 export interface Settings {
   soundEnabled: boolean;
   vibrationEnabled: boolean;
