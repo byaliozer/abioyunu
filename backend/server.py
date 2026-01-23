@@ -306,6 +306,22 @@ async def get_episodes():
     """Get all episodes"""
     return await get_episodes_data()
 
+@api_router.get("/episodes/stats")
+async def get_episodes_stats():
+    """Get episode statistics - total count, unlocked count, etc."""
+    episodes = await get_episodes_data()
+    
+    total_episodes = len(episodes)
+    unlocked_episodes = len([e for e in episodes if not e.is_locked])
+    locked_episodes = len([e for e in episodes if e.is_locked])
+    
+    return {
+        "total_episodes": total_episodes,
+        "unlocked_episodes": unlocked_episodes,
+        "locked_episodes": locked_episodes,
+        "questions_per_episode": 25
+    }
+
 @api_router.get("/quiz/episode/{episode_id}", response_model=QuizResponse)
 async def get_episode_quiz(episode_id: int, count: int = 25):
     """Get quiz questions for a specific episode (25 questions)"""
