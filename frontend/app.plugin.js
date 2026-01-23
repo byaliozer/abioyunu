@@ -1,14 +1,23 @@
-const { withAppBuildGradle, withGradleProperties } = require('@expo/config-plugins');
+const { 
+  withAppBuildGradle, 
+  withGradleProperties,
+  withMainActivity,
+  withMainApplication,
+  withDangerousMod
+} = require('@expo/config-plugins');
+const fs = require('fs');
+const path = require('path');
 
 /**
- * Config plugin to enable BuildConfig generation in Android builds
- * This patches android/app/build.gradle (module-level, NOT root)
+ * Config plugin to:
+ * 1. Enable BuildConfig generation in Android builds
+ * 2. Add explicit BuildConfig import to MainActivity.kt and MainApplication.kt
  * 
- * CRITICAL: EAS regenerates android folder on every build, so this plugin
- * must properly inject buildFeatures { buildConfig true } into the generated gradle file
+ * CRITICAL: EAS regenerates android folder on every build
  */
 const withBuildConfig = (config) => {
-  console.log('[withBuildConfig] Plugin starting...');
+  const packageName = config.android?.package || 'com.busegame.abi';
+  console.log(`[withBuildConfig] Plugin starting with package: ${packageName}`);
   
   // 1. Modify android/app/build.gradle to add buildFeatures { buildConfig true }
   config = withAppBuildGradle(config, (gradleConfig) => {
@@ -44,11 +53,10 @@ const withBuildConfig = (config) => {
     return gradleConfig;
   });
 
-  // 2. Also add to gradle.properties as fallback
+  // 2. Add to gradle.properties as fallback
   config = withGradleProperties(config, (propsConfig) => {
     console.log('[withBuildConfig] Adding to gradle.properties...');
     
-    // Check if property already exists
     const existingProp = propsConfig.modResults.find(
       (item) => item.key === 'android.defaults.buildfeatures.buildconfig'
     );
@@ -63,6 +71,56 @@ const withBuildConfig = (config) => {
     }
     
     return propsConfig;
+  });
+
+  // 3. Add BuildConfig import to MainActivity.kt
+  config = withMainActivity(config, (activityConfig) => {
+    console.log('[withBuildConfig] Modifying MainActivity.kt...');
+    
+    let contents = activityConfig.modResults.contents;
+    const importStatement = `import ${packageName}.BuildConfig`;
+    
+    // Check if import already exists
+    if (contents.includes(importStatement) || contents.includes(`import ${packageName}.BuildConfig`)) {
+      console.log('[withBuildConfig] BuildConfig import already exists in MainActivity.kt');
+      return activityConfig;
+    }
+    
+    // Add import after package declaration
+    contents = contents.replace(
+      /(package\s+[\w.]+)/,
+      `$1\n\n${importStatement}`
+    );
+    
+    activityConfig.modResults.contents = contents;
+    console.log('[withBuildConfig] MainActivity.kt modified successfully');
+    
+    return activityConfig;
+  });
+
+  // 4. Add BuildConfig import to MainApplication.kt
+  config = withMainApplication(config, (appConfig) => {
+    console.log('[withBuildConfig] Modifying MainApplication.kt...');
+    
+    let contents = appConfig.modResults.contents;
+    const importStatement = `import ${packageName}.BuildConfig`;
+    
+    // Check if import already exists
+    if (contents.includes(importStatement) || contents.includes(`import ${packageName}.BuildConfig`)) {
+      console.log('[withBuildConfig] BuildConfig import already exists in MainApplication.kt');
+      return appConfig;
+    }
+    
+    // Add import after package declaration
+    contents = contents.replace(
+      /(package\s+[\w.]+)/,
+      `$1\n\n${importStatement}`
+    );
+    
+    appConfig.modResults.contents = contents;
+    console.log('[withBuildConfig] MainApplication.kt modified successfully');
+    
+    return appConfig;
   });
 
   console.log('[withBuildConfig] Plugin completed');
