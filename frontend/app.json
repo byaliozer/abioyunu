@@ -81,11 +81,11 @@
         "expo-build-properties",
         {
           "android": {
-            "compileSdkVersion": 35,
-            "targetSdkVersion": 35,
+            "compileSdkVersion": 34,
+            "targetSdkVersion": 34,
             "minSdkVersion": 24,
-            "buildToolsVersion": "35.0.0",
-            "kotlinVersion": "2.0.21",
+            "buildToolsVersion": "34.0.0",
+            "kotlinVersion": "2.0.0",
             "newArchEnabled": false,
             "enableProguardInReleaseBuilds": false,
             "extraMavenRepos": []
