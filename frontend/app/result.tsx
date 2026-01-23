@@ -1,39 +1,48 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   Animated,
+  ActivityIndicator,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAds } from '../src/context/AdContext';
 import { BannerAd } from '../src/components/BannerAd';
-import { useEffect, useRef } from 'react';
+import { submitEpisodeScore, submitMixedScore } from '../src/services/api';
 
 export default function ResultScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
-  const { showInterstitial } = useAds();
+  const { showInterstitial, showRewarded, isRewardedReady } = useAds();
   
   const mode = params.mode as string || 'episode';
   const episodeId = parseInt(params.episodeId as string) || 1;
-  const score = parseInt(params.score as string) || 0;
+  const initialScore = parseInt(params.score as string) || 0;
   const correctCount = parseInt(params.correctCount as string) || 0;
   const speedBonus = parseInt(params.speedBonus as string) || 0;
   const totalQuestions = parseInt(params.totalQuestions as string) || 25;
   const questionsAnswered = parseInt(params.questionsAnswered as string) || 0;
   const isNewRecord = params.isNewRecord === '1';
-  const bestScore = parseInt(params.bestScore as string) || score;
+  const bestScore = parseInt(params.bestScore as string) || initialScore;
+  
+  // State for score multiplier
+  const [currentScore, setCurrentScore] = useState(initialScore);
+  const [isMultiplied, setIsMultiplied] = useState(false);
+  const [isLoadingRewarded, setIsLoadingRewarded] = useState(false);
   
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const sparkleAnim = useRef(new Animated.Value(0)).current;
+  const multiplierAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
+    // MUTLAKA oyun sonunda geçiş reklamı göster
     showInterstitial();
     
+    // Score animation
     Animated.spring(scaleAnim, {
       toValue: 1,
       tension: 50,
@@ -41,6 +50,7 @@ export default function ResultScreen() {
       useNativeDriver: true,
     }).start();
     
+    // New record sparkle animation
     if (isNewRecord) {
       Animated.loop(
         Animated.sequence([
@@ -51,12 +61,41 @@ export default function ResultScreen() {
     }
   }, []);
 
-  const handleNextEpisode = () => {
-    if (episodeId < 14) {
-      router.replace(`/quiz?mode=episode&episode=${episodeId + 1}`);
-    } else {
-      router.replace('/episodes');
+  // Handle 3X rewarded ad
+  const handleWatch3XAd = async () => {
+    if (isMultiplied || isLoadingRewarded) return;
+    
+    setIsLoadingRewarded(true);
+    
+    const success = await showRewarded(() => {
+      // Callback when reward is earned
+      const newScore = currentScore * 3;
+      setCurrentScore(newScore);
+      setIsMultiplied(true);
+      
+      // Animate the multiplier
+      Animated.sequence([
+        Animated.timing(multiplierAnim, { toValue: 1.3, duration: 200, useNativeDriver: true }),
+        Animated.timing(multiplierAnim, { toValue: 1, duration: 200, useNativeDriver: true }),
+      ]).start();
+      
+      // Submit new score to backend
+      if (mode === 'mixed') {
+        submitMixedScore(newScore, correctCount, speedBonus, questionsAnswered);
+      } else {
+        submitEpisodeScore(episodeId, newScore, correctCount, speedBonus);
+      }
+    });
+    
+    setIsLoadingRewarded(false);
+    
+    if (!success) {
+      console.log('Rewarded ad not available or user cancelled');
     }
+  };
+
+  const handleNextEpisode = () => {
+    router.replace(`/quiz?mode=episode&episode=${episodeId + 1}`);
   };
 
   const handlePlayAgain = () => {
@@ -86,10 +125,49 @@ export default function ResultScreen() {
           </Animated.View>
         )}
 
-        {/* Score */}
+        {/* Score with 3X Button */}
         <Animated.View style={[styles.scoreContainer, { transform: [{ scale: scaleAnim }] }]}>
           <Text style={styles.scoreLabel}>SKOR</Text>
-          <Text style={styles.scoreValue}>{score}</Text>
+          <View style={styles.scoreRow}>
+            <Animated.Text style={[
+              styles.scoreValue, 
+              isMultiplied && styles.scoreMultiplied,
+              { transform: [{ scale: multiplierAnim }] }
+            ]}>
+              {currentScore}
+            </Animated.Text>
+            
+            {/* 3X Rewarded Ad Button */}
+            {!isMultiplied && (
+              <TouchableOpacity 
+                style={[
+                  styles.multiplierButton,
+                  !isRewardedReady && styles.multiplierButtonDisabled
+                ]}
+                onPress={handleWatch3XAd}
+                disabled={isLoadingRewarded || !isRewardedReady}
+                activeOpacity={0.8}
+              >
+                {isLoadingRewarded ? (
+                  <ActivityIndicator size="small" color="#fff" />
+                ) : (
+                  <>
+                    <Ionicons name="videocam" size={16} color="#fff" />
+                    <Text style={styles.multiplierText}>3X</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            )}
+            
+            {isMultiplied && (
+              <View style={styles.multipliedBadge}>
+                <Text style={styles.multipliedText}>3X!</Text>
+              </View>
+            )}
+          </View>
+          {!isMultiplied && (
+            <Text style={styles.watchAdHint}>Reklam izle, puanını 3 katına çıkar!</Text>
+          )}
         </Animated.View>
 
         {/* Stats */}
@@ -126,12 +204,14 @@ export default function ResultScreen() {
           <Text style={styles.bestScoreLabel}>
             {mode === 'episode' ? `${episodeId}. Bölüm En İyi Skor` : 'Karışık Mod En İyi'}
           </Text>
-          <Text style={styles.bestScoreValue}>{bestScore}</Text>
+          <Text style={styles.bestScoreValue}>
+            {isMultiplied ? Math.max(currentScore, bestScore) : bestScore}
+          </Text>
         </View>
 
         {/* Buttons */}
         <View style={styles.buttonsContainer}>
-          {mode === 'episode' && episodeId < 14 && (
+          {mode === 'episode' && (
             <TouchableOpacity style={styles.primaryButton} onPress={handleNextEpisode}>
               <Ionicons name="arrow-forward" size={24} color="#fff" />
               <Text style={styles.primaryButtonText}>Sonraki Bölüm</Text>
@@ -155,6 +235,7 @@ export default function ResultScreen() {
         </View>
       </View>
 
+      {/* Banner Ad - Always visible */}
       <BannerAd />
     </SafeAreaView>
   );
@@ -188,7 +269,7 @@ const styles = StyleSheet.create({
   },
   scoreContainer: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 24,
   },
   scoreLabel: {
     fontSize: 16,
@@ -196,16 +277,64 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: 2,
   },
+  scoreRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
   scoreValue: {
-    fontSize: 72,
+    fontSize: 64,
     fontWeight: 'bold',
     color: '#fff',
+  },
+  scoreMultiplied: {
+    color: '#4caf50',
+  },
+  multiplierButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e91e63',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 12,
+    gap: 6,
+    shadowColor: '#e91e63',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  multiplierButtonDisabled: {
+    backgroundColor: '#555',
+    shadowOpacity: 0,
+  },
+  multiplierText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  multipliedBadge: {
+    backgroundColor: '#4caf50',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 12,
+  },
+  multipliedText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  watchAdHint: {
+    fontSize: 12,
+    color: '#e91e63',
+    marginTop: 8,
+    fontWeight: '500',
   },
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
-    marginBottom: 32,
+    marginBottom: 24,
     backgroundColor: '#2d2d44',
     borderRadius: 16,
     padding: 20,
@@ -225,7 +354,7 @@ const styles = StyleSheet.create({
   },
   bestScoreContainer: {
     alignItems: 'center',
-    marginBottom: 32,
+    marginBottom: 24,
     backgroundColor: '#2d2d44',
     borderRadius: 12,
     padding: 16,
