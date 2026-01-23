@@ -3,9 +3,6 @@
 # dependencies
 node_modules/
 
-# Yarn lock file - let EAS generate fresh
-yarn.lock
-
 # Expo
 .expo/
 dist/
