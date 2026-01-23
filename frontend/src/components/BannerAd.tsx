@@ -9,12 +9,14 @@ interface BannerAdProps {
 // Check if running on mobile
 const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
 
-// Try to import mobile banner component
+// Try to import mobile banner component only on native
 let BannerAdComponent: any = null;
 let BannerAdSize: any = null;
 
+// Only require on native platforms
 if (isMobile) {
   try {
+    // Dynamic require to prevent web bundling issues
     const mobileAdsModule = require('react-native-google-mobile-ads');
     BannerAdComponent = mobileAdsModule.BannerAd;
     BannerAdSize = mobileAdsModule.BannerAdSize;
@@ -43,7 +45,7 @@ export function BannerAd({ style }: BannerAdProps) {
     );
   }
 
-  // Fallback for web/development
+  // Fallback for web/development - ALWAYS show placeholder
   return (
     <View style={[styles.placeholder, style]}>
       <Text style={styles.placeholderText}>Reklam Alanı</Text>
