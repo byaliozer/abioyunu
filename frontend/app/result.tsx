@@ -26,13 +26,15 @@ export default function ResultScreen() {
   const speedBonus = parseInt(params.speedBonus as string) || 0;
   const totalQuestions = parseInt(params.totalQuestions as string) || 25;
   const questionsAnswered = parseInt(params.questionsAnswered as string) || 0;
-  const isNewRecord = params.isNewRecord === '1';
-  const bestScore = parseInt(params.bestScore as string) || initialScore;
   
-  // State for score multiplier
+  // State for score multiplier and submission
   const [currentScore, setCurrentScore] = useState(initialScore);
   const [isMultiplied, setIsMultiplied] = useState(false);
   const [isLoadingRewarded, setIsLoadingRewarded] = useState(false);
+  const [isScoreSubmitted, setIsScoreSubmitted] = useState(false);
+  const [isNewRecord, setIsNewRecord] = useState(false);
+  const [bestScore, setBestScore] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const sparkleAnim = useRef(new Animated.Value(0)).current;
@@ -49,17 +51,44 @@ export default function ResultScreen() {
       friction: 7,
       useNativeDriver: true,
     }).start();
-    
-    // New record sparkle animation
-    if (isNewRecord) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(sparkleAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
-          Animated.timing(sparkleAnim, { toValue: 0.5, duration: 500, useNativeDriver: true }),
-        ])
-      ).start();
-    }
   }, []);
+
+  // Submit score to backend - called when user decides (3X or not)
+  const submitFinalScore = async (finalScore: number) => {
+    if (isScoreSubmitted || isSubmitting) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      let result;
+      if (mode === 'mixed') {
+        result = await submitMixedScore(finalScore, correctCount, speedBonus, questionsAnswered);
+      } else {
+        result = await submitEpisodeScore(episodeId, finalScore, correctCount, speedBonus);
+      }
+      
+      setIsScoreSubmitted(true);
+      setIsNewRecord(result.is_new_record);
+      setBestScore(result.best_score);
+      
+      // Start sparkle animation if new record
+      if (result.is_new_record) {
+        Animated.loop(
+          Animated.sequence([
+            Animated.timing(sparkleAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+            Animated.timing(sparkleAnim, { toValue: 0.5, duration: 500, useNativeDriver: true }),
+          ])
+        ).start();
+      }
+      
+      console.log(`[Result] Score submitted: ${finalScore}, New Record: ${result.is_new_record}`);
+    } catch (e) {
+      console.error('[Result] Score submit error:', e);
+      setIsScoreSubmitted(true); // Mark as submitted to prevent loops
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Handle 3X rewarded ad
   const handleWatch3XAd = async () => {
@@ -79,12 +108,8 @@ export default function ResultScreen() {
         Animated.timing(multiplierAnim, { toValue: 1, duration: 200, useNativeDriver: true }),
       ]).start();
       
-      // Submit new score to backend
-      if (mode === 'mixed') {
-        submitMixedScore(newScore, correctCount, speedBonus, questionsAnswered);
-      } else {
-        submitEpisodeScore(episodeId, newScore, correctCount, speedBonus);
-      }
+      // Submit the MULTIPLIED score to backend
+      submitFinalScore(newScore);
     });
     
     setIsLoadingRewarded(false);
@@ -94,11 +119,26 @@ export default function ResultScreen() {
     }
   };
 
+  // Handle skip 3X and submit original score
+  const handleSkip3X = () => {
+    if (!isScoreSubmitted && !isMultiplied) {
+      submitFinalScore(currentScore);
+    }
+  };
+
   const handleNextEpisode = () => {
+    // Submit score if not submitted yet
+    if (!isScoreSubmitted && !isMultiplied) {
+      submitFinalScore(currentScore);
+    }
     router.replace(`/quiz?mode=episode&episode=${episodeId + 1}`);
   };
 
   const handlePlayAgain = () => {
+    // Submit score if not submitted yet
+    if (!isScoreSubmitted && !isMultiplied) {
+      submitFinalScore(currentScore);
+    }
     if (mode === 'mixed') {
       router.replace('/quiz?mode=mixed');
     } else {
@@ -107,6 +147,10 @@ export default function ResultScreen() {
   };
 
   const handleLeaderboard = () => {
+    // Submit score if not submitted yet
+    if (!isScoreSubmitted && !isMultiplied) {
+      submitFinalScore(currentScore);
+    }
     if (mode === 'mixed') {
       router.push('/leaderboard?tab=mixed');
     } else {
@@ -114,11 +158,19 @@ export default function ResultScreen() {
     }
   };
 
+  const handleHome = () => {
+    // Submit score if not submitted yet
+    if (!isScoreSubmitted && !isMultiplied) {
+      submitFinalScore(currentScore);
+    }
+    router.replace('/');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
-        {/* New Record Badge */}
-        {isNewRecord && (
+        {/* New Record Badge - Only show after score is submitted */}
+        {isScoreSubmitted && isNewRecord && (
           <Animated.View style={[styles.newRecordBadge, { opacity: sparkleAnim }]}>
             <Ionicons name="trophy" size={24} color="#ffc107" />
             <Text style={styles.newRecordText}>YENİ REKOR!</Text>
@@ -137,8 +189,8 @@ export default function ResultScreen() {
               {currentScore}
             </Animated.Text>
             
-            {/* 3X Rewarded Ad Button */}
-            {!isMultiplied && (
+            {/* 3X Rewarded Ad Button - Only show if not multiplied yet */}
+            {!isMultiplied && !isScoreSubmitted && (
               <TouchableOpacity 
                 style={[
                   styles.multiplierButton,
@@ -165,8 +217,29 @@ export default function ResultScreen() {
               </View>
             )}
           </View>
-          {!isMultiplied && (
+          
+          {/* Hint text */}
+          {!isMultiplied && !isScoreSubmitted && (
             <Text style={styles.watchAdHint}>Reklam izle, puanını 3 katına çıkar!</Text>
+          )}
+          
+          {/* Skip button - if user doesn't want to watch ad */}
+          {!isMultiplied && !isScoreSubmitted && (
+            <TouchableOpacity 
+              style={styles.skipButton}
+              onPress={handleSkip3X}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.skipButtonText}>3X'i Atla ve Devam Et</Text>
+            </TouchableOpacity>
+          )}
+          
+          {/* Submitting indicator */}
+          {isSubmitting && (
+            <View style={styles.submittingContainer}>
+              <ActivityIndicator size="small" color="#009688" />
+              <Text style={styles.submittingText}>Skor kaydediliyor...</Text>
+            </View>
           )}
         </Animated.View>
 
@@ -199,15 +272,15 @@ export default function ResultScreen() {
           )}
         </View>
 
-        {/* Best Score */}
-        <View style={styles.bestScoreContainer}>
-          <Text style={styles.bestScoreLabel}>
-            {mode === 'episode' ? `${episodeId}. Bölüm En İyi Skor` : 'Karışık Mod En İyi'}
-          </Text>
-          <Text style={styles.bestScoreValue}>
-            {isMultiplied ? Math.max(currentScore, bestScore) : bestScore}
-          </Text>
-        </View>
+        {/* Best Score - Only show after submission */}
+        {isScoreSubmitted && (
+          <View style={styles.bestScoreContainer}>
+            <Text style={styles.bestScoreLabel}>
+              {mode === 'episode' ? `${episodeId}. Bölüm En İyi Skor` : 'Karışık Mod En İyi'}
+            </Text>
+            <Text style={styles.bestScoreValue}>{bestScore}</Text>
+          </View>
+        )}
 
         {/* Buttons */}
         <View style={styles.buttonsContainer}>
@@ -228,7 +301,7 @@ export default function ResultScreen() {
             <Text style={styles.secondaryButtonText}>Liderlik Tablosu</Text>
           </TouchableOpacity>
           
-          <TouchableOpacity style={styles.outlineButton} onPress={() => router.replace('/')}>
+          <TouchableOpacity style={styles.outlineButton} onPress={handleHome}>
             <Ionicons name="home" size={24} color="#009688" />
             <Text style={styles.outlineButtonText}>Ana Menü</Text>
           </TouchableOpacity>
@@ -329,6 +402,26 @@ const styles = StyleSheet.create({
     color: '#e91e63',
     marginTop: 8,
     fontWeight: '500',
+  },
+  skipButton: {
+    marginTop: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+  },
+  skipButtonText: {
+    fontSize: 14,
+    color: '#888',
+    textDecorationLine: 'underline',
+  },
+  submittingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 12,
+  },
+  submittingText: {
+    fontSize: 14,
+    color: '#009688',
   },
   statsContainer: {
     flexDirection: 'row',
