@@ -21,16 +21,17 @@ export default function MainMenu() {
   const { showInterstitial } = useAds();
   const [stats, setStats] = useState<EpisodeStats | null>(null);
 
-  useEffect(() => {
-    loadStats();
-  }, []);
-
+  // Load stats function
   const loadStats = async () => {
     const data = await getEpisodeStats();
     if (data) {
       setStats(data);
     }
   };
+
+  useEffect(() => {
+    loadStats();
+  }, []);
 
   // Dynamic episode text based on stats
   const getEpisodeHintText = () => {
