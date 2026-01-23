@@ -194,6 +194,25 @@ export async function getEpisodes(): Promise<Episode[]> {
   }
 }
 
+export async function getEpisodeStats(): Promise<EpisodeStats | null> {
+  try {
+    console.log('[API] Fetching episode stats from:', `${API_URL}/api/episodes/stats`);
+    const response = await fetch(`${API_URL}/api/episodes/stats`);
+    
+    if (!response.ok) {
+      console.error('[API] Episode stats fetch failed:', response.status);
+      return null;
+    }
+    
+    const data = await response.json();
+    console.log('[API] Episode stats loaded:', data);
+    return data;
+  } catch (error) {
+    console.error('[API] Episode stats error:', error);
+    return null;
+  }
+}
+
 export async function getEpisodeQuiz(episodeId: number): Promise<QuizResponse> {
   // Try new endpoint first, fallback to old endpoint
   let response = await fetch(`${API_URL}/api/quiz/episode/${episodeId}?count=25`);
