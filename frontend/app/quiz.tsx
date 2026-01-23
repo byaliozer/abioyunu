@@ -16,8 +16,6 @@ import { Ionicons } from '@expo/vector-icons';
 import {
   getEpisodeQuiz,
   getMixedQuiz,
-  submitEpisodeScore,
-  submitMixedScore,
   getSettings,
   QuizResponse,
   Question,
