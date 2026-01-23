@@ -3,8 +3,10 @@
 # dependencies
 node_modules/
 
-# Yarn lock - EAS will generate fresh
+# Yarn - using npm instead
 yarn.lock
+.yarnrc
+.yarnrc.yml
 
 # Expo
 .expo/
