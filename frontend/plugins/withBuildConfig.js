@@ -1,41 +1,84 @@
-const { withAppBuildGradle, withGradleProperties } = require('@expo/config-plugins');
+const { withAppBuildGradle, withGradleProperties, withProjectBuildGradle } = require('@expo/config-plugins');
 
 /**
- * This plugin enables BuildConfig generation which is disabled by default
- * in newer versions of Android Gradle Plugin.
+ * Comprehensive plugin to enable BuildConfig generation.
+ * This is required for newer Android Gradle Plugin versions where
+ * buildConfig generation is disabled by default.
  */
 function withBuildConfig(config) {
-  // Add gradle property
+  // 1. Add gradle property to gradle.properties
   config = withGradleProperties(config, (config) => {
-    config.modResults.push({
+    const buildConfigProp = {
       type: 'property',
       key: 'android.defaults.buildfeatures.buildconfig',
       value: 'true',
-    });
+    };
+    
+    // Remove existing property if present
+    config.modResults = config.modResults.filter(
+      (item) => !(item.type === 'property' && item.key === 'android.defaults.buildfeatures.buildconfig')
+    );
+    
+    // Add property
+    config.modResults.push(buildConfigProp);
+    
     return config;
   });
 
-  // Modify app/build.gradle to enable buildConfig
-  config = withAppBuildGradle(config, (config) => {
-    const buildGradle = config.modResults.contents;
+  // 2. Modify project-level build.gradle to ensure buildConfig is enabled
+  config = withProjectBuildGradle(config, (config) => {
+    let contents = config.modResults.contents;
     
-    // Check if buildFeatures block exists
-    if (buildGradle.includes('buildFeatures {')) {
-      // Add buildConfig = true if not already present
-      if (!buildGradle.includes('buildConfig')) {
-        config.modResults.contents = buildGradle.replace(
-          /buildFeatures\s*\{/,
-          'buildFeatures {\n        buildConfig = true'
-        );
+    // Add allprojects block with buildFeatures if not present
+    if (!contents.includes('android.buildFeatures.buildConfig')) {
+      const allProjectsBlock = `
+allprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                buildFeatures {
+                    buildConfig = true
+                }
+            }
+        }
+    }
+}
+`;
+      // Add before the last closing brace
+      contents = contents.trimEnd();
+      if (contents.endsWith('}')) {
+        contents = contents.slice(0, -1) + allProjectsBlock + '\n}';
+      } else {
+        contents = contents + '\n' + allProjectsBlock;
       }
-    } else {
-      // Add buildFeatures block in android block
-      config.modResults.contents = buildGradle.replace(
+      config.modResults.contents = contents;
+    }
+    
+    return config;
+  });
+
+  // 3. Modify app/build.gradle
+  config = withAppBuildGradle(config, (config) => {
+    let contents = config.modResults.contents;
+    
+    // Find android block and add buildFeatures
+    if (!contents.includes('buildFeatures')) {
+      contents = contents.replace(
         /android\s*\{/,
-        'android {\n    buildFeatures {\n        buildConfig = true\n    }'
+        `android {
+    buildFeatures {
+        buildConfig = true
+    }`
+      );
+    } else if (!contents.includes('buildConfig = true') && !contents.includes('buildConfig true')) {
+      // buildFeatures exists but buildConfig is not set
+      contents = contents.replace(
+        /buildFeatures\s*\{/,
+        'buildFeatures {\n        buildConfig = true'
       );
     }
     
+    config.modResults.contents = contents;
     return config;
   });
 
