@@ -264,59 +264,35 @@ export default function QuizScreen() {
     const finalSpeedBonus = speedBonus;
     const finalQuestionsAnswered = currentIndex + 1;
     
+    // NOT: Skor burada backend'e GÖNDERİLMİYOR!
+    // Result sayfasında kullanıcı 3X izleyip izlemeyeceğine karar verdikten sonra gönderilecek
     const baseParams = {
       mode,
       score: finalScore.toString(),
       correctCount: finalCorrectCount.toString(),
       speedBonus: finalSpeedBonus.toString(),
       isNewRecord: '0',
-      bestScore: finalScore.toString(),
+      bestScore: '0',
+      scoreSubmitted: '0', // Skor henüz gönderilmedi
     };
     
-    try {
-      if (mode === 'mixed') {
-        const result = await submitMixedScore(finalScore, finalCorrectCount, finalSpeedBonus, finalQuestionsAnswered);
-        router.replace({
-          pathname: '/result',
-          params: {
-            ...baseParams,
-            questionsAnswered: finalQuestionsAnswered.toString(),
-            isNewRecord: result.is_new_record ? '1' : '0',
-            bestScore: result.best_score.toString(),
-          },
-        });
-      } else {
-        const result = await submitEpisodeScore(episodeId, finalScore, finalCorrectCount, finalSpeedBonus);
-        router.replace({
-          pathname: '/result',
-          params: {
-            ...baseParams,
-            episodeId: episodeId.toString(),
-            totalQuestions: '25',
-            isNewRecord: result.is_new_record ? '1' : '0',
-            bestScore: result.best_score.toString(),
-          },
-        });
-      }
-    } catch (e) {
-      if (mode === 'mixed') {
-        router.replace({
-          pathname: '/result',
-          params: {
-            ...baseParams,
-            questionsAnswered: finalQuestionsAnswered.toString(),
-          },
-        });
-      } else {
-        router.replace({
-          pathname: '/result',
-          params: {
-            ...baseParams,
-            episodeId: episodeId.toString(),
-            totalQuestions: '25',
-          },
-        });
-      }
+    if (mode === 'mixed') {
+      router.replace({
+        pathname: '/result',
+        params: {
+          ...baseParams,
+          questionsAnswered: finalQuestionsAnswered.toString(),
+        },
+      });
+    } else {
+      router.replace({
+        pathname: '/result',
+        params: {
+          ...baseParams,
+          episodeId: episodeId.toString(),
+          totalQuestions: '25',
+        },
+      });
     }
   };
 
