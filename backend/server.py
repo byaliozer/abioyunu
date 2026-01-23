@@ -176,23 +176,18 @@ async def get_episodes_data() -> List[Episode]:
                 logger.warning(f"Error parsing episode row: {e}, row: {row}")
                 continue
         
-        # Ensure we have at least 14 episodes (fill missing ones)
-        existing_ids = {e.id for e in episodes}
-        for i in range(1, 15):
-            if i not in existing_ids:
-                episodes.append(Episode(
-                    id=i,
-                    name=f"{i}. Bölüm",
-                    question_count=25,
-                    is_locked=False
-                ))
-        
+        # Sort episodes by ID - NO HARDCODED LIMIT, fully dynamic from Google Sheets
         episodes.sort(key=lambda e: e.id)
-        cache[cache_key] = episodes  # No limit - show all episodes from sheets
+        
+        # If no episodes found from sheets, log warning but don't create fake episodes
+        if not episodes:
+            logger.warning("No episodes found in Google Sheets!")
+        
+        cache[cache_key] = episodes
         return episodes
     except Exception as e:
         logger.error(f"Error fetching episodes: {e}")
-        return [Episode(id=i, name=f"{i}. Bölüm", question_count=25) for i in range(1, 15)]
+        return []  # Return empty list on error, don't create fake episodes
 
 async def get_questions_data() -> Dict[int, List[Dict]]:
     """Get all questions from Google Sheets with caching"""
