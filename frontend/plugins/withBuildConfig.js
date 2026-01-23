@@ -1,36 +1,70 @@
-const { withAppBuildGradle } = require('@expo/config-plugins');
+const { withAppBuildGradle, withGradleProperties } = require('@expo/config-plugins');
 
 /**
- * Add buildFeatures { buildConfig true } to android/app/build.gradle
+ * Comprehensive plugin to enable BuildConfig generation
+ * Based on ChatGPT recommendation for AGP where BuildConfig is disabled by default
  */
-const withBuildConfig = (config) => {
+
+// Step 1: Add buildFeatures { buildConfig true } to android/app/build.gradle
+const withBuildConfigGradle = (config) => {
   return withAppBuildGradle(config, (config) => {
     let buildGradle = config.modResults.contents;
     
     // Check if buildConfig is already set
     if (buildGradle.includes('buildConfig true') || buildGradle.includes('buildConfig = true')) {
+      console.log('[withBuildConfig] buildConfig already enabled in build.gradle');
       return config;
     }
     
-    // Find the android { block and add buildFeatures after it
-    const androidBlockRegex = /android\s*\{/;
-    const match = buildGradle.match(androidBlockRegex);
-    
-    if (match) {
-      const insertPosition = buildGradle.indexOf(match[0]) + match[0].length;
-      const before = buildGradle.substring(0, insertPosition);
-      const after = buildGradle.substring(insertPosition);
-      
-      buildGradle = before + `
-    buildFeatures {
-        buildConfig true
-    }` + after;
-      
-      config.modResults.contents = buildGradle;
+    // Check if buildFeatures block exists
+    if (buildGradle.includes('buildFeatures {')) {
+      // Add buildConfig true inside existing buildFeatures block
+      buildGradle = buildGradle.replace(
+        /buildFeatures\s*\{/,
+        'buildFeatures {\n        buildConfig true'
+      );
+    } else {
+      // Add buildFeatures block inside android block
+      // Find android { and add buildFeatures right after it
+      buildGradle = buildGradle.replace(
+        /android\s*\{/,
+        'android {\n    buildFeatures {\n        buildConfig true\n    }'
+      );
     }
     
+    config.modResults.contents = buildGradle;
+    console.log('[withBuildConfig] Added buildFeatures { buildConfig true } to build.gradle');
     return config;
   });
+};
+
+// Step 2: Add android.defaults.buildfeatures.buildconfig=true to gradle.properties
+const withBuildConfigProperties = (config) => {
+  return withGradleProperties(config, (config) => {
+    const key = 'android.defaults.buildfeatures.buildconfig';
+    
+    // Remove existing property if present
+    config.modResults = config.modResults.filter(
+      (item) => !(item.type === 'property' && item.key === key)
+    );
+    
+    // Add the property
+    config.modResults.push({
+      type: 'property',
+      key: key,
+      value: 'true',
+    });
+    
+    console.log('[withBuildConfig] Added android.defaults.buildfeatures.buildconfig=true to gradle.properties');
+    return config;
+  });
+};
+
+// Combined plugin
+const withBuildConfig = (config) => {
+  config = withBuildConfigGradle(config);
+  config = withBuildConfigProperties(config);
+  return config;
 };
 
 module.exports = withBuildConfig;
