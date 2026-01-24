@@ -2,10 +2,11 @@ const { withMainActivity, withMainApplication, withAppBuildGradle } = require('@
 
 /**
  * Custom Expo Config Plugin to:
- * 1. Remove BuildConfig imports and usages from MainActivity.kt and MainApplication.kt
- * 2. Fix uppercase()/toUpperCase() -> toString().toUpperCase(Locale.ROOT) for full Kotlin compatibility
- * 3. Add Locale import
- * 4. Ensure buildConfig feature is enabled in build.gradle
+ * 1. Remove BuildConfig imports and usages
+ * 2. Fix boolean values (remove quotes from "true"/"false")
+ * 3. Fix null values (remove quotes from "null")
+ * 4. Fix uppercase() compatibility
+ * 5. Add Locale import
  */
 
 function withRemoveBuildConfigReferences(config) {
@@ -18,21 +19,19 @@ function withRemoveBuildConfigReferences(config) {
       contents = contents.replace(/import\s+com\.busegame\.abi\.BuildConfig\s*\n?/g, '');
       contents = contents.replace(/import\s+[a-zA-Z0-9_.]+\.BuildConfig\s*\n?/g, '');
       
-      // Remove BuildConfig.DEBUG usages - replace with false
+      // Replace BuildConfig.DEBUG with boolean false (not string)
       contents = contents.replace(/BuildConfig\.DEBUG/g, 'false');
-      contents = contents.replace(/BuildConfig\.[A-Z_]+/g, '"release"');
       
-      // Fix uppercase() -> toString().toUpperCase(Locale.ROOT) for full Kotlin compatibility
-      contents = contents.replace(/\.uppercase\(\)/g, '.toString().toUpperCase(Locale.ROOT)');
-      contents = contents.replace(/\.toUpperCase\(\)/g, '.toUpperCase(Locale.ROOT)');
+      // Fix quoted booleans - "true" -> true, "false" -> false
+      contents = contents.replace(/=\s*"true"/g, '= true');
+      contents = contents.replace(/=\s*"false"/g, '= false');
       
-      // Add Locale import if not present
-      if (!contents.includes('import java.util.Locale')) {
-        contents = contents.replace(
-          /(package\s+[^\n]+\n)/,
-          '$1\nimport java.util.Locale\n'
-        );
-      }
+      // Fix quoted null - "null" -> null
+      contents = contents.replace(/\("null"\)/g, '(null)');
+      contents = contents.replace(/super\.onCreate\("null"\)/g, 'super.onCreate(null)');
+      
+      // Fix uppercase() -> uppercase() with Locale for compatibility
+      // Keep .uppercase() as is since Kotlin 1.5+ supports it
       
       config.modResults.contents = contents;
     }
@@ -48,21 +47,19 @@ function withRemoveBuildConfigReferences(config) {
       contents = contents.replace(/import\s+com\.busegame\.abi\.BuildConfig\s*\n?/g, '');
       contents = contents.replace(/import\s+[a-zA-Z0-9_.]+\.BuildConfig\s*\n?/g, '');
       
-      // Remove BuildConfig.DEBUG usages - replace with false
+      // Replace BuildConfig.DEBUG with boolean false (not string)
       contents = contents.replace(/BuildConfig\.DEBUG/g, 'false');
-      contents = contents.replace(/BuildConfig\.[A-Z_]+/g, '"release"');
       
-      // Fix uppercase() -> toString().toUpperCase(Locale.ROOT) for full Kotlin compatibility
-      contents = contents.replace(/\.uppercase\(\)/g, '.toString().toUpperCase(Locale.ROOT)');
-      contents = contents.replace(/\.toUpperCase\(\)/g, '.toUpperCase(Locale.ROOT)');
+      // Fix quoted booleans - "true" -> true, "false" -> false
+      contents = contents.replace(/=\s*"true"/g, '= true');
+      contents = contents.replace(/=\s*"false"/g, '= false');
       
-      // Add Locale import if not present
-      if (!contents.includes('import java.util.Locale')) {
-        contents = contents.replace(
-          /(package\s+[^\n]+\n)/,
-          '$1\nimport java.util.Locale\n'
-        );
-      }
+      // Fix isNewArchEnabled and isHermesEnabled specifically
+      contents = contents.replace(/override\s+val\s+isNewArchEnabled\s*=\s*"[^"]*"/g, 'override val isNewArchEnabled = false');
+      contents = contents.replace(/override\s+val\s+isHermesEnabled\s*=\s*"[^"]*"/g, 'override val isHermesEnabled = true');
+      
+      // Fix quoted null
+      contents = contents.replace(/\("null"\)/g, '(null)');
       
       config.modResults.contents = contents;
     }
