@@ -31,6 +31,7 @@
     },
     "plugins": [
       "expo-router",
+      "./plugins/withBuildConfigFix.js",
       [
         "expo-build-properties",
         {
