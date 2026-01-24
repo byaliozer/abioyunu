@@ -27,6 +27,7 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
     const init = async () => {
       if (Platform.OS !== 'web') {
         try {
+          const { Audio } = await import('expo-av');
           await Audio.setAudioModeAsync({
             allowsRecordingIOS: false,
             playsInSilentModeIOS: true,
@@ -36,6 +37,7 @@ export function SoundProvider({ children }: { children: React.ReactNode }) {
           console.log('[Sound] Audio mode set successfully');
         } catch (e) {
           console.warn('[Sound] Failed to set audio mode:', e);
+          // Don't crash - audio just won't work
         }
       }
       setIsReady(true);
