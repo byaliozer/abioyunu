@@ -50,6 +50,7 @@
       "expo-router",
       "./plugins/withBuildConfigFix.js",
       "./plugins/withPackageNameFix.js",
+      "./plugins/withAdIdPermission.js",
       [
         "expo-build-properties",
         {
