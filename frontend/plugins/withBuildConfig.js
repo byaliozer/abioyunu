@@ -2,25 +2,25 @@ const { withMainActivity, withMainApplication, withAppBuildGradle } = require('@
 
 /**
  * Custom Expo Config Plugin to:
- * 1. Remove BuildConfig imports and usages
+ * 1. ADD BuildConfig import to MainActivity.kt and MainApplication.kt
  * 2. Fix boolean values (remove quotes from "true"/"false")
  * 3. Fix null values (remove quotes from "null")
- * 4. Fix uppercase() compatibility
- * 5. Add Locale import
+ * 4. Ensure buildConfig feature is enabled in build.gradle
  */
 
-function withRemoveBuildConfigReferences(config) {
-  // Modify MainActivity.kt
+function withBuildConfigFix(config) {
+  // Modify MainActivity.kt - ADD BuildConfig import
   config = withMainActivity(config, (config) => {
     if (config.modResults.language === 'kotlin' || config.modResults.language === 'kt') {
       let contents = config.modResults.contents;
       
-      // Remove BuildConfig import
-      contents = contents.replace(/import\s+com\.busegame\.abi\.BuildConfig\s*\n?/g, '');
-      contents = contents.replace(/import\s+[a-zA-Z0-9_.]+\.BuildConfig\s*\n?/g, '');
-      
-      // Replace BuildConfig.DEBUG with boolean false (not string)
-      contents = contents.replace(/BuildConfig\.DEBUG/g, 'false');
+      // ADD BuildConfig import if not present
+      if (!contents.includes('import com.busegame.abi.BuildConfig')) {
+        contents = contents.replace(
+          /(package\s+com\.busegame\.abi\s*\n)/,
+          '$1\nimport com.busegame.abi.BuildConfig\n'
+        );
+      }
       
       // Fix quoted booleans - "true" -> true, "false" -> false
       contents = contents.replace(/=\s*"true"/g, '= true');
@@ -30,25 +30,23 @@ function withRemoveBuildConfigReferences(config) {
       contents = contents.replace(/\("null"\)/g, '(null)');
       contents = contents.replace(/super\.onCreate\("null"\)/g, 'super.onCreate(null)');
       
-      // Fix uppercase() -> uppercase() with Locale for compatibility
-      // Keep .uppercase() as is since Kotlin 1.5+ supports it
-      
       config.modResults.contents = contents;
     }
     return config;
   });
 
-  // Modify MainApplication.kt
+  // Modify MainApplication.kt - ADD BuildConfig import
   config = withMainApplication(config, (config) => {
     if (config.modResults.language === 'kotlin' || config.modResults.language === 'kt') {
       let contents = config.modResults.contents;
       
-      // Remove BuildConfig import
-      contents = contents.replace(/import\s+com\.busegame\.abi\.BuildConfig\s*\n?/g, '');
-      contents = contents.replace(/import\s+[a-zA-Z0-9_.]+\.BuildConfig\s*\n?/g, '');
-      
-      // Replace BuildConfig.DEBUG with boolean false (not string)
-      contents = contents.replace(/BuildConfig\.DEBUG/g, 'false');
+      // ADD BuildConfig import if not present
+      if (!contents.includes('import com.busegame.abi.BuildConfig')) {
+        contents = contents.replace(
+          /(package\s+com\.busegame\.abi\s*\n)/,
+          '$1\nimport com.busegame.abi.BuildConfig\n'
+        );
+      }
       
       // Fix quoted booleans - "true" -> true, "false" -> false
       contents = contents.replace(/=\s*"true"/g, '= true');
@@ -71,13 +69,13 @@ function withRemoveBuildConfigReferences(config) {
     if (config.modResults.language === 'groovy') {
       let contents = config.modResults.contents;
 
-      // Add buildFeatures block if not present
-      if (!contents.includes('buildConfig = true') && !contents.includes('buildConfig true')) {
+      // Add buildFeatures block with buildConfig true
+      if (!contents.includes('buildConfig true') && !contents.includes('buildConfig = true')) {
         contents = contents.replace(
           /(android\s*\{)/,
           `$1
     buildFeatures {
-        buildConfig = true
+        buildConfig true
     }`
         );
       }
@@ -90,4 +88,4 @@ function withRemoveBuildConfigReferences(config) {
   return config;
 }
 
-module.exports = withRemoveBuildConfigReferences;
+module.exports = withBuildConfigFix;
