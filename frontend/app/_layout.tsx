@@ -3,8 +3,19 @@ import { Stack, useRouter, useSegments, usePathname } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SoundProvider } from '../src/context/SoundContext';
 import { AdProvider } from '../src/context/AdContext';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, ActivityIndicator, StyleSheet, Text } from 'react-native';
 import { hasUsername } from '../src/services/api';
+import { ErrorBoundary } from 'react-error-boundary';
+
+// Error fallback component
+function ErrorFallback({ error }: { error: Error }) {
+  return (
+    <View style={styles.errorContainer}>
+      <Text style={styles.errorTitle}>Bir hata oluştu</Text>
+      <Text style={styles.errorMessage}>{error.message}</Text>
+    </View>
+  );
+}
 
 function RootLayoutNav() {
   const [isLoading, setIsLoading] = useState(true);
