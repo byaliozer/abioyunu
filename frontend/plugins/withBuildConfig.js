@@ -1,91 +1,65 @@
-const { withMainActivity, withMainApplication, withAppBuildGradle } = require('@expo/config-plugins');
+const { withMainActivity, withMainApplication, withAppBuildGradle, withDangerousMod } = require('@expo/config-plugins');
+const fs = require('fs');
+const path = require('path');
 
 /**
- * Custom Expo Config Plugin to:
- * 1. ADD BuildConfig import to MainActivity.kt and MainApplication.kt
- * 2. Fix boolean values (remove quotes from "true"/"false")
- * 3. Fix null values (remove quotes from "null")
- * 4. Ensure buildConfig feature is enabled in build.gradle
+ * Bu plugin BuildConfig referanslarını tamamen kaldırır
+ * Çünkü Expo New Architecture projelerinde BuildConfig bazen generate edilmiyor
  */
 
-function withBuildConfigFix(config) {
-  // Modify MainActivity.kt - ADD BuildConfig import
-  config = withMainActivity(config, (config) => {
-    if (config.modResults.language === 'kotlin' || config.modResults.language === 'kt') {
-      let contents = config.modResults.contents;
+function withRemoveBuildConfig(config) {
+  // Dangerous mod ile doğrudan dosyaları değiştir
+  config = withDangerousMod(config, [
+    'android',
+    async (config) => {
+      const projectRoot = config.modRequest.projectRoot;
+      const androidDir = path.join(projectRoot, 'android');
       
-      // ADD BuildConfig import if not present
-      if (!contents.includes('import com.busegame.abi.BuildConfig')) {
-        contents = contents.replace(
-          /(package\s+com\.busegame\.abi\s*\n)/,
-          '$1\nimport com.busegame.abi.BuildConfig\n'
-        );
+      // MainActivity.kt dosyasını düzelt
+      const mainActivityPath = path.join(
+        androidDir,
+        'app/src/main/java/com/busegame/abi/MainActivity.kt'
+      );
+      
+      if (fs.existsSync(mainActivityPath)) {
+        let content = fs.readFileSync(mainActivityPath, 'utf8');
+        
+        // BuildConfig.DEBUG kullanımını kaldır ve sabit değerle değiştir
+        content = content.replace(/BuildConfig\.DEBUG/g, 'false');
+        content = content.replace(/BuildConfig\.[A-Z_]+/g, 'false');
+        
+        // BuildConfig import satırını kaldır
+        content = content.replace(/import\s+.*\.BuildConfig\s*\n?/g, '');
+        
+        fs.writeFileSync(mainActivityPath, content);
+        console.log('[withRemoveBuildConfig] MainActivity.kt düzeltildi');
       }
       
-      // Fix quoted booleans - "true" -> true, "false" -> false
-      contents = contents.replace(/=\s*"true"/g, '= true');
-      contents = contents.replace(/=\s*"false"/g, '= false');
+      // MainApplication.kt dosyasını düzelt
+      const mainApplicationPath = path.join(
+        androidDir,
+        'app/src/main/java/com/busegame/abi/MainApplication.kt'
+      );
       
-      // Fix quoted null - "null" -> null
-      contents = contents.replace(/\("null"\)/g, '(null)');
-      contents = contents.replace(/super\.onCreate\("null"\)/g, 'super.onCreate(null)');
-      
-      config.modResults.contents = contents;
-    }
-    return config;
-  });
-
-  // Modify MainApplication.kt - ADD BuildConfig import
-  config = withMainApplication(config, (config) => {
-    if (config.modResults.language === 'kotlin' || config.modResults.language === 'kt') {
-      let contents = config.modResults.contents;
-      
-      // ADD BuildConfig import if not present
-      if (!contents.includes('import com.busegame.abi.BuildConfig')) {
-        contents = contents.replace(
-          /(package\s+com\.busegame\.abi\s*\n)/,
-          '$1\nimport com.busegame.abi.BuildConfig\n'
-        );
+      if (fs.existsSync(mainApplicationPath)) {
+        let content = fs.readFileSync(mainApplicationPath, 'utf8');
+        
+        // BuildConfig.DEBUG kullanımını kaldır
+        content = content.replace(/BuildConfig\.DEBUG/g, 'false');
+        content = content.replace(/BuildConfig\.[A-Z_]+/g, 'false');
+        
+        // BuildConfig import satırını kaldır
+        content = content.replace(/import\s+.*\.BuildConfig\s*\n?/g, '');
+        
+        fs.writeFileSync(mainApplicationPath, content);
+        console.log('[withRemoveBuildConfig] MainApplication.kt düzeltildi');
       }
       
-      // Fix quoted booleans - "true" -> true, "false" -> false
-      contents = contents.replace(/=\s*"true"/g, '= true');
-      contents = contents.replace(/=\s*"false"/g, '= false');
-      
-      // Fix isNewArchEnabled and isHermesEnabled specifically
-      contents = contents.replace(/override\s+val\s+isNewArchEnabled\s*=\s*"[^"]*"/g, 'override val isNewArchEnabled = false');
-      contents = contents.replace(/override\s+val\s+isHermesEnabled\s*=\s*"[^"]*"/g, 'override val isHermesEnabled = true');
-      
-      // Fix quoted null
-      contents = contents.replace(/\("null"\)/g, '(null)');
-      
-      config.modResults.contents = contents;
-    }
-    return config;
-  });
-
-  // Ensure buildConfig is enabled in app/build.gradle
-  config = withAppBuildGradle(config, (config) => {
-    if (config.modResults.language === 'groovy') {
-      let contents = config.modResults.contents;
-
-      // Add buildFeatures block with buildConfig true
-      if (!contents.includes('buildConfig true') && !contents.includes('buildConfig = true')) {
-        contents = contents.replace(
-          /(android\s*\{)/,
-          `$1
-    buildFeatures {
-        buildConfig true
-    }`
-        );
-      }
-
-      config.modResults.contents = contents;
-    }
-    return config;
-  });
+      return config;
+    },
+  ]);
 
   return config;
 }
 
-module.exports = withBuildConfigFix;
+module.exports = withRemoveBuildConfig;
