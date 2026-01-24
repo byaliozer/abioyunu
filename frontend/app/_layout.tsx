@@ -91,12 +91,14 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <SoundProvider>
-      <AdProvider>
-        <StatusBar style="light" />
-        <RootLayoutNav />
-      </AdProvider>
-    </SoundProvider>
+    <ErrorBoundary FallbackComponent={ErrorFallback}>
+      <SoundProvider>
+        <AdProvider>
+          <StatusBar style="light" />
+          <RootLayoutNav />
+        </AdProvider>
+      </SoundProvider>
+    </ErrorBoundary>
   );
 }
 
@@ -106,5 +108,23 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#1a1a2e',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#1a1a2e',
+    padding: 20,
+  },
+  errorTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#ff6b6b',
+    marginBottom: 10,
+  },
+  errorMessage: {
+    fontSize: 14,
+    color: '#888',
+    textAlign: 'center',
   },
 });
