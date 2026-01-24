@@ -1,4 +1,6 @@
-const { withAppBuildGradle, withGradleProperties } = require('@expo/config-plugins');
+const { withAppBuildGradle, withGradleProperties, withDangerousMod } = require('@expo/config-plugins');
+const fs = require('fs');
+const path = require('path');
 
 /**
  * Bu plugin Android build yapılandırmasını düzelterek BuildConfig sınıfının 
@@ -16,19 +18,33 @@ const withBuildConfigFix = (config) => {
 
       // buildFeatures bloğu var mı kontrol et
       if (!contents.includes('buildConfig = true') && !contents.includes('buildConfig true')) {
-        // android { } bloğunun hemen başına buildFeatures ekle
-        const androidBlockRegex = /(android\s*\{)/;
+        // android { bloğunun içine buildFeatures ekle - defaultConfig'den önce
+        const defaultConfigRegex = /(android\s*\{[\s\S]*?)(defaultConfig\s*\{)/;
         
-        if (androidBlockRegex.test(contents)) {
+        if (defaultConfigRegex.test(contents)) {
           contents = contents.replace(
-            androidBlockRegex,
-            `$1
+            defaultConfigRegex,
+            `$1buildFeatures {
+        buildConfig = true
+    }
+
+    $2`
+          );
+          console.log('[withBuildConfigFix] Added buildFeatures { buildConfig = true } to app/build.gradle');
+        } else {
+          // Fallback: android { bloğunun başına ekle
+          const androidBlockRegex = /(android\s*\{)/;
+          if (androidBlockRegex.test(contents)) {
+            contents = contents.replace(
+              androidBlockRegex,
+              `$1
     buildFeatures {
         buildConfig = true
     }
 `
-          );
-          console.log('[withBuildConfigFix] Added buildFeatures { buildConfig = true } to app/build.gradle');
+            );
+            console.log('[withBuildConfigFix] Added buildFeatures (fallback) to app/build.gradle');
+          }
         }
       }
 
