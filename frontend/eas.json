@@ -32,8 +32,7 @@
       },
       "android": {
         "buildType": "app-bundle",
-        "credentialsSource": "remote",
-        "image": "ubuntu-22.04-jdk-17-ndk-r26b"
+        "credentialsSource": "remote"
       }
     }
   },
