@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "abi",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.busegame.abi",
@@ -48,20 +48,6 @@
     },
     "plugins": [
       "expo-router",
-      "./app.plugin.js",
-      [
-        "expo-build-properties",
-        {
-          "android": {
-            "compileSdkVersion": 35,
-            "targetSdkVersion": 35,
-            "buildToolsVersion": "35.0.0",
-            "enableBuildConfigGeneration": true,
-            "enableProguardInReleaseBuilds": false,
-            "enableShrinkResourcesInReleaseBuilds": false
-          }
-        }
-      ],
       [
         "expo-splash-screen",
         {
@@ -69,6 +55,13 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#1a1a2e"
+        }
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-9873123247401502~8867540882",
+          "iosAppId": "ca-app-pub-9873123247401502~8867540882"
         }
       ]
     ],
