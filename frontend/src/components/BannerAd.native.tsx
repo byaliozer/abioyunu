@@ -1,32 +1,55 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { Platform, StyleSheet, View, ViewStyle } from 'react-native';
+import { BannerAd as GoogleBannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads';
 
 interface BannerAdProps {
-  style?: object;
+  style?: ViewStyle;
 }
 
-// TEMPORARY: AdMob disabled for build diagnostic
-// TODO: Re-enable when build issue is resolved
+// Production Ad Unit IDs - Update with your actual IDs
+const BANNER_AD_UNIT_ID = __DEV__
+  ? TestIds.BANNER
+  : Platform.select({
+      ios: 'ca-app-pub-9873123247401502/1234567890', // Replace with your iOS banner ID
+      android: 'ca-app-pub-9873123247401502/1234567890', // Replace with your Android banner ID
+    }) || TestIds.BANNER;
+
 export function BannerAd({ style }: BannerAdProps) {
+  const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
+
+  if (!isMobile) {
+    // Return empty view for web
+    return <View style={[styles.placeholder, style]} />;
+  }
+
   return (
-    <View style={[styles.placeholder, style]}>
-      <Text style={styles.placeholderText}>Reklam Alanı</Text>
+    <View style={[styles.container, style]}>
+      <GoogleBannerAd
+        unitId={BANNER_AD_UNIT_ID}
+        size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
+        requestOptions={{
+          requestNonPersonalizedAdsOnly: false,
+        }}
+        onAdLoaded={() => {
+          console.log('[AdMob] Banner ad loaded');
+        }}
+        onAdFailedToLoad={(error) => {
+          console.error('[AdMob] Banner ad failed to load:', error);
+        }}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  placeholder: {
-    height: 50,
-    backgroundColor: 'rgba(0,0,0,0.05)',
+  container: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.1)',
     width: '100%',
   },
-  placeholderText: {
-    color: '#888',
-    fontSize: 12,
+  placeholder: {
+    height: 50,
+    backgroundColor: 'transparent',
+    width: '100%',
   },
 });
