@@ -3,12 +3,12 @@ const { withMainActivity, withMainApplication, withAppBuildGradle } = require('@
 /**
  * Custom Expo Config Plugin to:
  * 1. Remove BuildConfig imports and usages from MainActivity.kt and MainApplication.kt
- * 2. Fix uppercase() -> toUpperCase() compatibility issue
+ * 2. Fix toUpperCase() -> uppercase() for Kotlin 2.x compatibility
  * 3. Ensure buildConfig feature is enabled in build.gradle
  */
 
 function withRemoveBuildConfigReferences(config) {
-  // Modify MainActivity.kt to remove BuildConfig references and fix uppercase
+  // Modify MainActivity.kt to remove BuildConfig references and fix toUpperCase
   config = withMainActivity(config, (config) => {
     if (config.modResults.language === 'kotlin' || config.modResults.language === 'kt') {
       let contents = config.modResults.contents;
@@ -21,15 +21,15 @@ function withRemoveBuildConfigReferences(config) {
       contents = contents.replace(/BuildConfig\.DEBUG/g, 'false');
       contents = contents.replace(/BuildConfig\.[A-Z_]+/g, 'false');
       
-      // Fix uppercase() -> toUpperCase() for older Kotlin compatibility
-      contents = contents.replace(/\.uppercase\(\)/g, '.toUpperCase()');
+      // Fix toUpperCase() -> uppercase() for Kotlin 2.x compatibility
+      contents = contents.replace(/\.toUpperCase\(\)/g, '.uppercase()');
       
       config.modResults.contents = contents;
     }
     return config;
   });
 
-  // Modify MainApplication.kt to remove BuildConfig references and fix uppercase
+  // Modify MainApplication.kt to remove BuildConfig references and fix toUpperCase
   config = withMainApplication(config, (config) => {
     if (config.modResults.language === 'kotlin' || config.modResults.language === 'kt') {
       let contents = config.modResults.contents;
@@ -42,8 +42,8 @@ function withRemoveBuildConfigReferences(config) {
       contents = contents.replace(/BuildConfig\.DEBUG/g, 'false');
       contents = contents.replace(/BuildConfig\.[A-Z_]+/g, 'false');
       
-      // Fix uppercase() -> toUpperCase() for older Kotlin compatibility
-      contents = contents.replace(/\.uppercase\(\)/g, '.toUpperCase()');
+      // Fix toUpperCase() -> uppercase() for Kotlin 2.x compatibility
+      contents = contents.replace(/\.toUpperCase\(\)/g, '.uppercase()');
       
       config.modResults.contents = contents;
     }
