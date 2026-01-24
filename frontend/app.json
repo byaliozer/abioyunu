@@ -2,7 +2,7 @@
   "expo": {
     "name": "ABİ",
     "slug": "abioyunu",
-    "version": "1.0.8",
+    "version": "1.0.7",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "abi",
@@ -30,7 +30,7 @@
     },
     "android": {
       "package": "com.busegame.abi",
-      "versionCode": 8,
+      "versionCode": 7,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#1CB0F6"
@@ -88,6 +88,6 @@
         "projectId": "82fec815-abfd-4474-bbe5-8d810f0a9d0f"
       }
     },
-    "runtimeVersion": "1.0.8"
+    "runtimeVersion": "1.0.7"
   }
 }
