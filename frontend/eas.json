@@ -42,7 +42,8 @@
       },
       "android": {
         "buildType": "app-bundle",
-        "credentialsSource": "remote"
+        "credentialsSource": "remote",
+        "autoIncrement": false
       }
     }
   },
