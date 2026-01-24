@@ -14,6 +14,7 @@ import {
   getGeneralLeaderboard,
   getEpisodeLeaderboard,
   getMixedLeaderboard,
+  getEpisodeStats,
   LeaderboardResponse,
   LeaderboardEntry,
 } from '../src/services/api';
@@ -32,6 +33,22 @@ export default function LeaderboardScreen() {
   const [selectedEpisode, setSelectedEpisode] = useState(initialEpisode);
   const [data, setData] = useState<LeaderboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [totalEpisodes, setTotalEpisodes] = useState(1); // Dinamik bölüm sayısı
+
+  // Bölüm sayısını yükle
+  useEffect(() => {
+    const loadEpisodeCount = async () => {
+      try {
+        const stats = await getEpisodeStats();
+        if (stats && stats.total_episodes > 0) {
+          setTotalEpisodes(stats.total_episodes);
+        }
+      } catch (e) {
+        console.error('Error loading episode count:', e);
+      }
+    };
+    loadEpisodeCount();
+  }, []);
 
   useEffect(() => {
     loadData();
