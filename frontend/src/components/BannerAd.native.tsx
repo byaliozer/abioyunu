@@ -1,34 +1,32 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { BannerAd as GoogleBannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
-import { ADMOB_IDS, TEST_IDS } from '../config/admob';
+import { View, Text, StyleSheet } from 'react-native';
 
 interface BannerAdProps {
   style?: object;
 }
 
+// TEMPORARY: AdMob disabled for build diagnostic
+// TODO: Re-enable when build issue is resolved
 export function BannerAd({ style }: BannerAdProps) {
-  const adUnitId = __DEV__ ? TEST_IDS.BANNER_ID : ADMOB_IDS.BANNER_ID;
-  
   return (
-    <View style={[styles.container, style]}>
-      <GoogleBannerAd
-        unitId={adUnitId}
-        size={BannerAdSize.ANCHORED_ADAPTIVE_BANNER}
-        requestOptions={{
-          requestNonPersonalizedAdsOnly: false,
-        }}
-        onAdLoaded={() => console.log('[AdMob] Banner loaded')}
-        onAdFailedToLoad={(error) => console.log('[AdMob] Banner error:', error)}
-      />
+    <View style={[styles.placeholder, style]}>
+      <Text style={styles.placeholderText}>Reklam Alanı</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  placeholder: {
+    height: 50,
+    backgroundColor: 'rgba(0,0,0,0.05)',
     alignItems: 'center',
     justifyContent: 'center',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0,0,0,0.1)',
     width: '100%',
+  },
+  placeholderText: {
+    color: '#888',
+    fontSize: 12,
   },
 });
