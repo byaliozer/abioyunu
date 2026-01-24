@@ -3,12 +3,13 @@ const { withMainActivity, withMainApplication, withAppBuildGradle } = require('@
 /**
  * Custom Expo Config Plugin to:
  * 1. Remove BuildConfig imports and usages from MainActivity.kt and MainApplication.kt
- * 2. Fix toUpperCase() -> uppercase() for Kotlin 2.x compatibility
- * 3. Ensure buildConfig feature is enabled in build.gradle
+ * 2. Fix uppercase()/toUpperCase() -> toString().toUpperCase(Locale.ROOT) for full Kotlin compatibility
+ * 3. Add Locale import
+ * 4. Ensure buildConfig feature is enabled in build.gradle
  */
 
 function withRemoveBuildConfigReferences(config) {
-  // Modify MainActivity.kt to remove BuildConfig references and fix toUpperCase
+  // Modify MainActivity.kt
   config = withMainActivity(config, (config) => {
     if (config.modResults.language === 'kotlin' || config.modResults.language === 'kt') {
       let contents = config.modResults.contents;
@@ -19,17 +20,26 @@ function withRemoveBuildConfigReferences(config) {
       
       // Remove BuildConfig.DEBUG usages - replace with false
       contents = contents.replace(/BuildConfig\.DEBUG/g, 'false');
-      contents = contents.replace(/BuildConfig\.[A-Z_]+/g, 'false');
+      contents = contents.replace(/BuildConfig\.[A-Z_]+/g, '"release"');
       
-      // Fix toUpperCase() -> uppercase() for Kotlin 2.x compatibility
-      contents = contents.replace(/\.toUpperCase\(\)/g, '.uppercase()');
+      // Fix uppercase() -> toString().toUpperCase(Locale.ROOT) for full Kotlin compatibility
+      contents = contents.replace(/\.uppercase\(\)/g, '.toString().toUpperCase(Locale.ROOT)');
+      contents = contents.replace(/\.toUpperCase\(\)/g, '.toUpperCase(Locale.ROOT)');
+      
+      // Add Locale import if not present
+      if (!contents.includes('import java.util.Locale')) {
+        contents = contents.replace(
+          /(package\s+[^\n]+\n)/,
+          '$1\nimport java.util.Locale\n'
+        );
+      }
       
       config.modResults.contents = contents;
     }
     return config;
   });
 
-  // Modify MainApplication.kt to remove BuildConfig references and fix toUpperCase
+  // Modify MainApplication.kt
   config = withMainApplication(config, (config) => {
     if (config.modResults.language === 'kotlin' || config.modResults.language === 'kt') {
       let contents = config.modResults.contents;
@@ -40,10 +50,19 @@ function withRemoveBuildConfigReferences(config) {
       
       // Remove BuildConfig.DEBUG usages - replace with false
       contents = contents.replace(/BuildConfig\.DEBUG/g, 'false');
-      contents = contents.replace(/BuildConfig\.[A-Z_]+/g, 'false');
+      contents = contents.replace(/BuildConfig\.[A-Z_]+/g, '"release"');
       
-      // Fix toUpperCase() -> uppercase() for Kotlin 2.x compatibility
-      contents = contents.replace(/\.toUpperCase\(\)/g, '.uppercase()');
+      // Fix uppercase() -> toString().toUpperCase(Locale.ROOT) for full Kotlin compatibility
+      contents = contents.replace(/\.uppercase\(\)/g, '.toString().toUpperCase(Locale.ROOT)');
+      contents = contents.replace(/\.toUpperCase\(\)/g, '.toUpperCase(Locale.ROOT)');
+      
+      // Add Locale import if not present
+      if (!contents.includes('import java.util.Locale')) {
+        contents = contents.replace(
+          /(package\s+[^\n]+\n)/,
+          '$1\nimport java.util.Locale\n'
+        );
+      }
       
       config.modResults.contents = contents;
     }
