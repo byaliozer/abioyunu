@@ -88,6 +88,10 @@ android {
     compileSdk rootProject.ext.compileSdkVersion
 
     namespace 'com.busegame.abi'
+    buildFeatures {
+        buildConfig = true
+    }
+
     defaultConfig {
         applicationId 'com.busegame.abi'
         minSdkVersion rootProject.ext.minSdkVersion
