@@ -48,11 +48,16 @@
     },
     "plugins": [
       "expo-router",
+      "./plugins/withBuildConfig.js",
       [
         "expo-build-properties",
         {
           "android": {
-            "enableBuildConfigGeneration": true
+            "enableBuildConfigGeneration": true,
+            "compileSdkVersion": 35,
+            "targetSdkVersion": 35,
+            "buildToolsVersion": "35.0.0",
+            "kotlinVersion": "1.9.24"
           }
         }
       ],
