@@ -1,4 +1,4 @@
-package com.busegame.abii
+package com.busegame.abi
 
 import android.app.Application
 import android.content.res.Configuration

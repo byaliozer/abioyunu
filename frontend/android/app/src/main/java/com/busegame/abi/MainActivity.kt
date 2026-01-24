@@ -1,4 +1,4 @@
-package com.busegame.abii
+package com.busegame.abi
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build
