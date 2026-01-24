@@ -3,11 +3,12 @@ const { withMainActivity, withMainApplication, withAppBuildGradle } = require('@
 /**
  * Custom Expo Config Plugin to:
  * 1. Remove BuildConfig imports and usages from MainActivity.kt and MainApplication.kt
- * 2. Ensure buildConfig feature is enabled in build.gradle
+ * 2. Fix uppercase() -> toUpperCase() compatibility issue
+ * 3. Ensure buildConfig feature is enabled in build.gradle
  */
 
 function withRemoveBuildConfigReferences(config) {
-  // Modify MainActivity.kt to remove BuildConfig references
+  // Modify MainActivity.kt to remove BuildConfig references and fix uppercase
   config = withMainActivity(config, (config) => {
     if (config.modResults.language === 'kotlin' || config.modResults.language === 'kt') {
       let contents = config.modResults.contents;
@@ -16,16 +17,19 @@ function withRemoveBuildConfigReferences(config) {
       contents = contents.replace(/import\s+com\.busegame\.abi\.BuildConfig\s*\n?/g, '');
       contents = contents.replace(/import\s+[a-zA-Z0-9_.]+\.BuildConfig\s*\n?/g, '');
       
-      // Remove BuildConfig.DEBUG usages - replace with false or remove the condition
+      // Remove BuildConfig.DEBUG usages - replace with false
       contents = contents.replace(/BuildConfig\.DEBUG/g, 'false');
       contents = contents.replace(/BuildConfig\.[A-Z_]+/g, 'false');
+      
+      // Fix uppercase() -> toUpperCase() for older Kotlin compatibility
+      contents = contents.replace(/\.uppercase\(\)/g, '.toUpperCase()');
       
       config.modResults.contents = contents;
     }
     return config;
   });
 
-  // Modify MainApplication.kt to remove BuildConfig references
+  // Modify MainApplication.kt to remove BuildConfig references and fix uppercase
   config = withMainApplication(config, (config) => {
     if (config.modResults.language === 'kotlin' || config.modResults.language === 'kt') {
       let contents = config.modResults.contents;
@@ -37,6 +41,9 @@ function withRemoveBuildConfigReferences(config) {
       // Remove BuildConfig.DEBUG usages - replace with false
       contents = contents.replace(/BuildConfig\.DEBUG/g, 'false');
       contents = contents.replace(/BuildConfig\.[A-Z_]+/g, 'false');
+      
+      // Fix uppercase() -> toUpperCase() for older Kotlin compatibility
+      contents = contents.replace(/\.uppercase\(\)/g, '.toUpperCase()');
       
       config.modResults.contents = contents;
     }
@@ -50,7 +57,6 @@ function withRemoveBuildConfigReferences(config) {
 
       // Add buildFeatures block if not present
       if (!contents.includes('buildConfig = true') && !contents.includes('buildConfig true')) {
-        // Find android block and add buildFeatures
         contents = contents.replace(
           /(android\s*\{)/,
           `$1
