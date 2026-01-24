@@ -32,6 +32,7 @@
     "plugins": [
       "expo-router",
       "./plugins/withBuildConfigFix.js",
+      "./plugins/withPackageNameFix.js",
       [
         "expo-build-properties",
         {
