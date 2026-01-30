@@ -30,6 +30,7 @@ export default function QuizScreen() {
   const episodeId = parseInt(params.episode as string) || 1;
   const router = useRouter();
   const { playCorrectSound, playWrongSound, playBonusSound, playTickSound, isMuted } = useSound();
+  const { showInterstitial } = useAds();
 
   const [quiz, setQuiz] = useState<QuizResponse | null>(null);
   const [loading, setLoading] = useState(true);
