@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "abi",
     "userInterfaceStyle": "automatic",
-    "newArchEnabled": false,
+    "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.busegame.abi",
@@ -48,9 +48,7 @@
     },
     "plugins": [
       "expo-router",
-      "./plugins/withBuildConfigFix.js",
-      "./plugins/withPackageNameFix.js",
-      "./plugins/withAdIdPermission.js",
+      "./app.plugin.js",
       [
         "expo-build-properties",
         {
@@ -58,8 +56,7 @@
             "compileSdkVersion": 35,
             "targetSdkVersion": 35,
             "buildToolsVersion": "35.0.0",
-            "enableProguardInReleaseBuilds": false,
-            "kotlinVersion": "2.0.20"
+            "enableBuildConfigGeneration": true
           }
         }
       ],
