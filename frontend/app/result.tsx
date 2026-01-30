@@ -41,9 +41,6 @@ export default function ResultScreen() {
   const multiplierAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    // MUTLAKA oyun sonunda geçiş reklamı göster
-    showInterstitial();
-    
     // Score animation
     Animated.spring(scaleAnim, {
       toValue: 1,
