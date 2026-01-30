@@ -17,7 +17,7 @@ import { submitEpisodeScore, submitMixedScore } from '../src/services/api';
 export default function ResultScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
-  const { showInterstitial, showRewarded, isRewardedReady } = useAds();
+  const { showRewarded, isRewardedReady } = useAds();
   
   const mode = params.mode as string || 'episode';
   const episodeId = parseInt(params.episodeId as string) || 1;
