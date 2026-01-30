@@ -264,6 +264,9 @@ export default function QuizScreen() {
     const finalSpeedBonus = speedBonus;
     const finalQuestionsAnswered = currentIndex + 1;
     
+    // Oyun bitince geçiş reklamı göster
+    await showInterstitial();
+    
     // NOT: Skor burada backend'e GÖNDERİLMİYOR!
     // Result sayfasında kullanıcı 3X izleyip izlemeyeceğine karar verdikten sonra gönderilecek
     const baseParams = {
