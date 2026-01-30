@@ -172,6 +172,8 @@ export default function SettingsScreen() {
 
         <Text style={styles.version}>Versiyon 1.0.7 (7)</Text>
       </View>
+
+      <BannerAd />
     </SafeAreaView>
   );
 }
