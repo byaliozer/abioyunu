@@ -9,10 +9,7 @@ interface BannerAdProps {
 // Production Banner Ad Unit ID
 const BANNER_AD_UNIT_ID = __DEV__
   ? TestIds.BANNER
-  : Platform.select({
-      ios: 'ca-app-pub-9873123247401502/7990230026',
-      android: 'ca-app-pub-9873123247401502/7990230026',
-    }) || TestIds.BANNER;
+  : 'ca-app-pub-9873123247401502/7990230026';
 
 export function BannerAd({ style }: BannerAdProps) {
   const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
