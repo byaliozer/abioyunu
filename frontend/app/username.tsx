@@ -13,6 +13,7 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { setUsername } from '../src/services/api';
+import { BannerAd } from '../src/components/BannerAd';
 
 export default function UsernameScreen() {
   const [name, setName] = useState('');
