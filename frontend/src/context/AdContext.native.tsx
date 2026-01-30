@@ -23,17 +23,11 @@ const isMobile = Platform.OS === 'ios' || Platform.OS === 'android';
 // Production Ad Unit IDs
 const INTERSTITIAL_AD_UNIT_ID = __DEV__
   ? TestIds.INTERSTITIAL
-  : Platform.select({
-      ios: 'ca-app-pub-9873123247401502/6903669590',
-      android: 'ca-app-pub-9873123247401502/6903669590',
-    }) || TestIds.INTERSTITIAL;
+  : 'ca-app-pub-9873123247401502/6903669590';
 
 const REWARDED_AD_UNIT_ID = __DEV__
   ? TestIds.REWARDED
-  : Platform.select({
-      ios: 'ca-app-pub-9873123247401502/1662937894',
-      android: 'ca-app-pub-9873123247401502/1662937894',
-    }) || TestIds.REWARDED;
+  : 'ca-app-pub-9873123247401502/1662937894';
 
 export function AdProvider({ children }: { children: React.ReactNode }) {
   const [isInterstitialReady, setIsInterstitialReady] = useState(false);
