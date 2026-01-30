@@ -104,7 +104,10 @@ export default function MainMenu() {
         <View style={styles.utilityContainer}>
           <TouchableOpacity
             style={styles.utilityButton}
-            onPress={() => router.push('/leaderboard')}
+            onPress={async () => {
+              await showInterstitial();
+              router.push('/leaderboard');
+            }}
             activeOpacity={0.7}
           >
             <Ionicons name="trophy" size={22} color="#ffc107" />
