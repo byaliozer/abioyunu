@@ -13,6 +13,7 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { getSettings, saveSettings, getUsername, setUsername, Settings } from '../src/services/api';
+import { BannerAd } from '../src/components/BannerAd';
 
 export default function SettingsScreen() {
   const [settings, setSettingsState] = useState<Settings>({
