@@ -105,6 +105,8 @@ export default function UsernameScreen() {
           </Text>
         </KeyboardAvoidingView>
       </ScrollView>
+
+      <BannerAd />
     </SafeAreaView>
   );
 }
