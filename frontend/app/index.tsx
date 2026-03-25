@@ -53,7 +53,7 @@ export default function MainMenu() {
         {/* Banner Image */}
         <View style={styles.bannerContainer}>
           <Image
-            source={require('../assets/images/banner.png')}
+            source={require('../assets/images/banner_yeralti.jpg')}
             style={styles.banner}
             resizeMode="cover"
           />
@@ -61,7 +61,7 @@ export default function MainMenu() {
 
         {/* Title */}
         <View style={styles.titleContainer}>
-          <Text style={styles.title}>ABİ OYUNU</Text>
+          <Text style={styles.title}>YERALTI OYUNU</Text>
         </View>
 
         {/* Game Mode Buttons - Primary Actions */}
