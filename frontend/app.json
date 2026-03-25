@@ -32,7 +32,7 @@
       "package": "com.busegame.abi",
       "versionCode": 8,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/yeralti512.jpg",
         "backgroundColor": "#1CB0F6"
       },
       "permissions": [
